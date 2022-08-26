@@ -35,12 +35,16 @@ dependencies {
 
 적용하고자 하는 메서드에 `@SendSlackMessage`을 추가한다.
 
+만약 request에 대한 detail 정보까지 보내고 싶지 않다면, detailRequest를 false로 설정한다. 
+
+(ex. `@SendSlackMessage(detailRequest = false, slackUrl = "slackUrl...")`)
+
 #### 코드 적용 예시
 ```java
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    @SendSlackMessage(detailRequest = true, slackUrl = "slackUrl...")
+    @SendSlackMessage(slackUrl = "slackUrl...")
     @ExceptionHandler(CustomException.class)
     public String handleUnauthorized(final CustomException exception) {
         /*
