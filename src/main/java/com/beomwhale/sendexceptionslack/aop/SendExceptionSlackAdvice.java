@@ -3,8 +3,6 @@ package com.beomwhale.sendexceptionslack.aop;
 import static com.beomwhale.sendexceptionslack.support.ExceptionMessageGenerator.generate;
 
 import com.beomwhale.sendexceptionslack.filter.RequestContext;
-import com.slack.api.Slack;
-import com.slack.api.webhook.Payload;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -18,21 +16,18 @@ import org.springframework.scheduling.annotation.Async;
 public class SendExceptionSlackAdvice {
 
     private final RequestContext requestContext;
+    private final SlackApi slackApi;
 
-    public SendExceptionSlackAdvice(final RequestContext requestContext) {
+    public SendExceptionSlackAdvice(final RequestContext requestContext, final SlackApi slackApi) {
         this.requestContext = requestContext;
+        this.slackApi = slackApi;
     }
 
     @Async
     @After("@annotation(com.beomwhale.sendexceptionslack.aop.SendSlackMessage)")
-    public void sendSlackMessage(JoinPoint joinPoint) throws IOException {
+    public void sendMessage(JoinPoint joinPoint) throws IOException {
         String exceptionMessage = createExceptionMessage(joinPoint);
-
-        Slack slack = Slack.getInstance();
-        Payload payload = Payload.builder()
-                .text(exceptionMessage)
-                .build();
-        slack.send(getSlackUrl(joinPoint), payload);
+        slackApi.sendMessage(getSlackUrl(joinPoint), exceptionMessage);
     }
 
     private String createExceptionMessage(final JoinPoint joinPoint) {
